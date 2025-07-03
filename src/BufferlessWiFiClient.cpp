@@ -57,7 +57,7 @@ public:
     }
 };
 
-WiFiClient::WiFiClient():_connected(false),_timeout(WIFI_CLIENT_DEF_CONN_TIMEOUT_MS)
+BufferlessWiFiClient::BufferlessWiFiClient():_connected(false),_timeout(WIFI_CLIENT_DEF_CONN_TIMEOUT_MS)
 {
 }
 
