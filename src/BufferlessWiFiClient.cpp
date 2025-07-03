@@ -57,8 +57,11 @@ public:
     }
 };
 
+WiFiClient::WiFiClient():_connected(false),_timeout(WIFI_CLIENT_DEF_CONN_TIMEOUT_MS)
+{
+}
 
-BufferlessWiFiClient::BufferlessWiFiClient(int fd):_connected(true),_timeout(WIFI_CLIENT_DEF_CONN_TIMEOUT_MS),next(NULL)
+BufferlessWiFiClient::BufferlessWiFiClient(int fd):_connected(true),_timeout(WIFI_CLIENT_DEF_CONN_TIMEOUT_MS)
 {
     clientSocketHandle.reset(new BufferlessWiFiClientSocketHandle(fd));
 }
@@ -490,6 +493,7 @@ bool BufferlessWiFiClient::operator==(const BufferlessWiFiClient& rhs)
 
 int BufferlessWiFiClient::fd() const
 {
+  WiFiClient c;
     if (clientSocketHandle == NULL) {
         return -1;
     } else {

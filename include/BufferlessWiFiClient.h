@@ -52,7 +52,6 @@ protected:
     int _timeout;
 
 public:
-    BufferlessWiFiClient *next;
     BufferlessWiFiClient();
     BufferlessWiFiClient(int fd);
     ~BufferlessWiFiClient();
