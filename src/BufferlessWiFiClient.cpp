@@ -123,7 +123,6 @@ int BufferlessWiFiClient::connect(IPAddress ip, uint16_t port, int32_t timeout_m
         return 0;
     }
 
-    int timeout = getTimeout();
     res = select(sockfd + 1, nullptr, &fdset, nullptr, timeout<0 ? nullptr : &tv);
     if (res < 0) {
         log_e("select on fd %d, errno: %d, \"%s\"", sockfd, errno, strerror(errno));
