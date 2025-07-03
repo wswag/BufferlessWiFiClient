@@ -190,14 +190,14 @@ int BufferlessWiFiClient::setSocketOption(int level, int option, const void* val
     return res;
 }
 
-int BufferlessWiFiClient::setTimeout(uint32_t seconds)
+int BufferlessWiFiClient::setTimeout(uint32_t milliSeconds)
 {
-    Client::setTimeout(seconds * 1000); // This should be here?
-    _timeout = seconds * 1000;
-    if(fd() >= 0) {
+    Client::setTimeout(milliSeconds); // This should be here?
+    _timeout = milliSeconds;
+    if(clientSocketHandle) {
         struct timeval tv;
-        tv.tv_sec = seconds;
-        tv.tv_usec = 0;
+        tv.tv_sec = milliSeconds / 1000;
+        tv.tv_usec = (milliSeconds % 1000) * 1000;
         if(setSocketOption(SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval)) < 0) {
             return -1;
         }
