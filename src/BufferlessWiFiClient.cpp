@@ -57,11 +57,11 @@ public:
     }
 };
 
-BufferlessWiFiClient::BufferlessWiFiClient():_connected(false),_timeout(WIFI_CLIENT_DEF_CONN_TIMEOUT_MS)
+BufferlessWiFiClient::BufferlessWiFiClient():_connected(false)
 {
 }
 
-BufferlessWiFiClient::BufferlessWiFiClient(int fd):_connected(true),_timeout(WIFI_CLIENT_DEF_CONN_TIMEOUT_MS)
+BufferlessWiFiClient::BufferlessWiFiClient(int fd):_connected(true)
 {
     clientSocketHandle.reset(new BufferlessWiFiClientSocketHandle(fd));
 }
@@ -87,11 +87,10 @@ void BufferlessWiFiClient::stop()
 
 int BufferlessWiFiClient::connect(IPAddress ip, uint16_t port)
 {
-    return connect(ip,port,_timeout);
+    return connect(ip,port,getTimeout());
 }
 int BufferlessWiFiClient::connect(IPAddress ip, uint16_t port, int32_t timeout_ms)
 {
-    _timeout = timeout_ms;
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         log_e("socket: %d", errno);
@@ -109,8 +108,9 @@ int BufferlessWiFiClient::connect(IPAddress ip, uint16_t port, int32_t timeout_m
     struct timeval tv;
     FD_ZERO(&fdset);
     FD_SET(sockfd, &fdset);
-    tv.tv_sec = _timeout / 1000;
-    tv.tv_usec = (_timeout  % 1000) * 1000;
+    int timeout = getTimeout();
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout  % 1000) * 1000;
 
 #ifdef ESP_IDF_VERSION_MAJOR
     int res = lwip_connect(sockfd, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
@@ -123,13 +123,14 @@ int BufferlessWiFiClient::connect(IPAddress ip, uint16_t port, int32_t timeout_m
         return 0;
     }
 
-    res = select(sockfd + 1, nullptr, &fdset, nullptr, _timeout<0 ? nullptr : &tv);
+    int timeout = getTimeout();
+    res = select(sockfd + 1, nullptr, &fdset, nullptr, timeout<0 ? nullptr : &tv);
     if (res < 0) {
         log_e("select on fd %d, errno: %d, \"%s\"", sockfd, errno, strerror(errno));
         close(sockfd);
         return 0;
     } else if (res == 0) {
-        log_i("select returned due to timeout %d ms for fd %d", _timeout, sockfd);
+        log_i("select returned due to timeout %d ms for fd %d", timeout, sockfd);
         close(sockfd);
         return 0;
     } else {
@@ -167,7 +168,7 @@ int BufferlessWiFiClient::connect(IPAddress ip, uint16_t port, int32_t timeout_m
 
 int BufferlessWiFiClient::connect(const char *host, uint16_t port)
 {
-    return connect(host,port,_timeout);
+    return connect(host,port,getTimeout());
 }
 
 int BufferlessWiFiClient::connect(const char *host, uint16_t port, int32_t timeout_ms)
@@ -196,7 +197,6 @@ int BufferlessWiFiClient::setSocketOption(int level, int option, const void* val
 int BufferlessWiFiClient::setTimeout(uint32_t milliSeconds)
 {
     Client::setTimeout(milliSeconds); // This should be here?
-    _timeout = milliSeconds;
     if(clientSocketHandle) {
         struct timeval tv;
         tv.tv_sec = milliSeconds / 1000;

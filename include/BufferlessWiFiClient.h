@@ -49,8 +49,6 @@ private:
 protected:
     std::shared_ptr<BufferlessWiFiClientSocketHandle> clientSocketHandle;
     bool _connected;
-    int _timeout;
-
 public:
     BufferlessWiFiClient();
     BufferlessWiFiClient(int fd);
@@ -96,7 +94,7 @@ public:
     int setSocketOption(int level, int option, const void* value, size_t len);
     int setOption(int option, int *value);
     int getOption(int option, int *value);
-    int setTimeout(uint32_t milliSeconds);
+    int setTimeout(uint32_t milliSeconds) override;
     int setNoDelay(bool nodelay);
     bool getNoDelay();
 
